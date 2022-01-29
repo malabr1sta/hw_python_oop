@@ -7,6 +7,13 @@ from dataclasses import dataclass, asdict
 class InfoMessage:
     """Информационное сообщение о тренировке."""
 
+    MESSAGE = ('Тип тренировки: {training_type}; '
+               'Длительность: {duration:.3f} ч.; '
+               'Дистанция: {distance:.3f} км; '
+               'Ср. скорость: {speed:.3f} км/ч; '
+               'Потрачено ккал: {calories:.3f}.'
+               )
+
     training_type: str
     duration: float
     distance: float
@@ -14,13 +21,9 @@ class InfoMessage:
     calories: float
 
     def get_message(self) -> str:
-        message = ('Тип тренировки: {training_type}; '
-                   'Длительность: {duration:.3f} ч.; '
-                   'Дистанция: {distance:.3f} км; '
-                   'Ср. скорость: {speed:.3f} км/ч; '
-                   'Потрачено ккал: {calories:.3f}.'.format(**asdict(self))
-                   )
-        return message
+        """Выводит сообщение о тренировке."""
+
+        return self.MESSAGE.format(**asdict(self))
 
 
 class Training:
@@ -145,19 +148,15 @@ class Swimming(Training):
         return spent_calories
 
 
-DICT_ANOTATION = Dict[str, Type[Training]]
-
-
 def read_package(workout_type: str, data: List[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    encoding_training: DICT_ANOTATION = {'SWM': Swimming,
-                                         'RUN': Running,
-                                         'WLK': SportsWalking,
-                                         }
-    try:
-        example_traning = encoding_training[workout_type](*data)
-    except KeyError:
-        print('Неизвестный тип тренировки.')
+    encoding_training: Dict[str, Type[Training]] = {'SWM': Swimming,
+                                                    'RUN': Running,
+                                                    'WLK': SportsWalking,
+                                                    }
+    if workout_type not in encoding_training:
+        raise ValueError('Неизвестный тип тренировки.')
+    example_traning = encoding_training[workout_type](*data)
     return example_traning
 
 
